@@ -1,9 +1,8 @@
 ﻿﻿#include <iostream>
-
+using namespace std;
 int main()
 {
     int a;
-    using namespace std;
     cout << "Enter a six-digit number: \n";
     cin >> a;
     if (a / 100000 == 0 || a / 1000000 > 0) {
