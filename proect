@@ -4,15 +4,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Header.h"
-
 #include <thread>
 #include <chrono>
 
-
+#define random(a,b) a+rand()%(b+1-a)
+#define DEBUG
 
 using namespace std;
-#define random(a,b) a+rand()%(b+1-a)
-//#define DEBUG
 
 void incrementer(bool& flag, int& value)
 {
@@ -22,6 +20,7 @@ void incrementer(bool& flag, int& value)
         ++value;
     }
 }
+
 
 enum ConsoleColor
 {
@@ -42,11 +41,15 @@ enum ConsoleColor
     Yellow = 14,
     White = 15
 };
+
+
 void SetColor(ConsoleColor text, ConsoleColor background)
 {
     HANDLE hConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hConsoleHandle, text | background);
 }
+
+
 void moveCursor(int x, int y)
 {
     COORD coord;
@@ -54,26 +57,32 @@ void moveCursor(int x, int y)
     coord.Y = y;
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
+
+
 char** createField(int width, int height) {
     char** field = new char* [height];
     for (int i = 0; i < height; i++) {
         field[i] = new char[width];
-        for(int j=0; j<width; j++)
-            field[i][j]= char(176);
+        for (int j = 0; j < width; j++)
+            field[i][j] = char(176);
     }
     return field;
 }
-void showArray(char** array) {
-    int size = _msize(array) / sizeof(array[0]);
-    int size2 = _msize(array[0]) / sizeof(array[0][0]);
+
+
+void showArray(char** arr) {
+    int size = _msize(arr) / sizeof(arr[0]);
+    int size2 = _msize(arr[0]) / sizeof(arr[0][0]);
     for (int i = 0; i < size; i++) {
-        moveCursor(3, 2+i);
+        moveCursor(3, 2 + i);
         for (int j = 0; j < size2; j++) {
-            cout << array[i][j]<<array[i][j];
+            cout << arr[i][j] << arr[i][j];
         }
         cout << endl;
     }
 }
+
+
 void showLogo() {
     moveCursor(10, 2);
     cout << "$$  $$ $$$$$$  $$$$" << endl;
@@ -86,76 +95,86 @@ void showLogo() {
     moveCursor(10, 6);
     cout << "$$  $$ $$      $$$$" << endl;
 }
+
+
 void showMenu() {
     int counter = 0;
     int keyCode = 0;
     while (true) {
         moveCursor(15, 10);
-        if (counter == 0 ) SetColor(ConsoleColor::Yellow, ConsoleColor::Black);
+        if (counter == 0) SetColor(ConsoleColor::Yellow, ConsoleColor::Black);
         else SetColor(ConsoleColor::Green, ConsoleColor::Black);
         cout << "NEW GAME";
 
         moveCursor(17, 12);
-        if (counter == 1 ) SetColor(ConsoleColor::Yellow, ConsoleColor::Black);
-        else SetColor(ConsoleColor::Green, ConsoleColor::Black);       
+        if (counter == 1) SetColor(ConsoleColor::Yellow, ConsoleColor::Black);
+        else SetColor(ConsoleColor::Green, ConsoleColor::Black);
         cout << "EXIT";
 
         keyCode = keyboardListener();
         switch (keyCode) {
         case 72:
+            if (counter > 0) counter++;
         case 119:
             if (counter > 0) counter--;
             break;
         case 80:
+            if (counter < 1) counter--;
         case 115:
             if (counter < 1) counter++;
             break;
         case 13:
-            if (counter == 1) 
+            if (counter == 1)
                 exit(0);
             if (counter == 0)
                 startGame();
-            
+
         }
-   
+
     }
-   
+
 }
-void createEnemy(char** field, int x) {
+
+
+void createEnemy(char** field, int a) {
 
     int heightField = _msize(field) / sizeof(field[0]);
-    field[0][x] = '*';
-    field[0][x - 1] = '*';
-    field[0][x + 1] = '*';
-    field[1][x] = '*';
-    field[2][x] = '*';
-    field[2][x - 1] = '*';
-    field[2][x + 1] = '*';
-    field[3][x] = '*';
-
-
+    field[0][a] = '*';
+    field[0][a - 1] = '*';
+    field[0][a + 1] = '*';
+    field[1][a] = '*';
+    field[2][a] = '*';
+    field[2][a - 1] = '*';
+    field[2][a + 1] = '*';
+    field[3][a] = '*';
 }
-void clearField(char** array) {
-    int size = _msize(array) / sizeof(array[0]);
-    int size2 = _msize(array[0]) / sizeof(array[0][0]);
+
+
+void clearField(char** arr) {
+    int size = _msize(arr) / sizeof(arr[0]);
+    int size2 = _msize(arr[0]) / sizeof(arr[0][0]);
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size2; j++) {
-            if (array[i][j]!='*')
-                array[i][j]= char(176);
+            if (arr[i][j] != '*')
+                arr[i][j] = char(176);
         }
     }
 }
-void renderPlayer(char** field, int x) {
+
+
+void renderPlayer(char** field, int a) {
     int heightField = _msize(field) / sizeof(field[0]);
-    field[heightField - 1][x] = '.';
-    field[heightField - 1][x-1] = '.';
-    field[heightField - 1][x+1] = '.';
-    field[heightField - 2][x] = '.';
-    field[heightField - 3][x] = '.';
-    field[heightField - 3][x-1] = '.';
-    field[heightField - 3][x+1] = '.';
-    field[heightField - 4][x] = '.';
+    field[heightField - 1][a] = '.';
+    field[heightField - 1][a - 1] = '.';
+    field[heightField - 1][a + 1] = '.';
+    field[heightField - 2][a] = '.';
+    field[heightField - 3][a] = '.';
+    field[heightField - 3][a - 1] = '.';
+    field[heightField - 3][a + 1] = '.';
+    field[heightField - 4][a] = '.';
 
 }
-void moveEnemy(char** array) {
-    int size = _m
+
+
+void moveEnemy(char** arr) {
+    int size = 
